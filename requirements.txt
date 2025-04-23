@@ -1,0 +1,43 @@
+# Web Scraping & API Interaction
+requests
+beautifulsoup4
+firecrawl-py
+
+# Database & Environment Variables
+supabase
+python-dotenv
+
+# Google AI SDK
+google-genai
+openai
+
+# Hugging Face Ecosystem
+datasets
+huggingface-hub
+transformers # Often needed with datasets/vllm
+
+# LLM Serving & ML Framework
+vllm
+torch # Required by vllm, transformers, datasets, etc.
+# unsloth # Keep if used for training/optimization elsewhere in the project
+
+# Orchestration
+dagster
+dagster-webserver
+
+# RAG Components
+langchain
+langchain-community
+langchain-openai
+langchain-experimental
+langchain-core
+langchain-text-splitters
+langchain-chroma
+langgraph
+qdrant-client
+fastapi
+uvicorn
+pillow
+pydantic
+python-multipart
+
