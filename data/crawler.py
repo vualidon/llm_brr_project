@@ -98,7 +98,70 @@ class FandomCrawler:
             soup = BeautifulSoup(response.content, 'html.parser')
             content_area = soup.find('div', class_='mw-allpages-body')
             if not content_area:
-                content_area = soup.find('div', id='mw-content-text') # Fallback selector
+                content_area = soup.find('div',class_="mw-body-content")
+                list_items = content_area.find_all("li", class_="category-page__member") # Specific selector
+                
+                for link in list_items:
+                    
+                    link = link.find('a') # Find the anchor tag within the list item
+                    href = link.get('href')
+                    title = link.get('title')
+                    if title and href:
+                        logging.debug(f"Processing link: Title='{title}', Href='{href}'")
+                        if self.check_title_exists(title):
+                            logging.info(f"Skipping existing title: {title}")
+                            continue
+                        # --- Scrape new page ---
+                        page_url = f"{self.base_url_prefix}{href}" # Construct full URL
+                        logging.info(f"Found new title: '{title}'. Attempting scrape from: {page_url}")
+                        try:
+                            # --- Using Firecrawl as requested ---
+                            response_fc = self.firecrawl_app.scrape_url(
+                                url=page_url,
+                                # params={'pageOptions': {'onlyMainContent': True}}, # Example of potential param if needed later
+                                formats=[ 'markdown', 'html' ], # As per original code
+                                include_tags=[ '#mw-content-text' ], # As per original code
+                            )
+                            # --- End Firecrawl usage ---
+
+                            logging.info(f"Firecrawl response for {title}: {response_fc}") # Log the raw response for debugging if needed
+
+                            if response_fc and response_fc.markdown: # Check if markdown content exists
+                                # Extract metadata safely
+                                og_image = response_fc.metadata.get('og:image', None) if response_fc.metadata else None
+
+                                page_data = {
+                                    'title': title,
+                                    'url': page_url,
+                                    'content': response_fc.markdown,
+                                    'image_link': og_image,
+                                    'crawled_at': datetime.now().isoformat(),
+                                    # Consider adding 'html_content': response_fc.html if needed
+                                }
+                                scraped_pages_data.append(page_data)
+                                logging.info(f"Successfully scraped and prepared data for '{title}'.")
+
+                                # --- Original break statement ---
+                                # This break will cause the loop to exit after the *first*
+                                # successful scrape. If you want to scrape all new pages
+
+                                # found on the 'AllPages' list during one run, remove this break.
+                                # break
+                                # --- End original break ---
+                            else:
+
+                                logging.warning(f"Firecrawl scrape for '{title}' completed but returned no markdown content. Skipping.")
+                        except Exception as fc_error:
+                            logging.error(f"Error during Firecrawl scrape for '{title}' at {page_url}: {fc_error}")
+                            # Decide whether to continue to the next link or stop
+                            continue
+                    else:
+                        logging.warning(f"Skipping link with missing title or href: {link}")
+                
+                
+                return scraped_pages_data # Return the list of successfully scraped pages (possibly only one due to break)
+            # --- Original logic continued ---
+            # If the content area was not found, try a different selector   
 
             if content_area:
                 list_items = content_area.select('ul.mw-allpages-chunk li a') # Specific selector
@@ -140,7 +203,7 @@ class FandomCrawler:
 
                                 if response_fc and response_fc.markdown: # Check if markdown content exists
                                     # Extract metadata safely
-                                    og_image = response_fc.metadata.get('ogImage', None) if response_fc.metadata else None
+                                    og_image = response_fc.metadata.get('og:image', None) if response_fc.metadata else None
 
                                     page_data = {
                                         'title': title,
@@ -206,24 +269,24 @@ class FandomCrawler:
 
 # Example of how to use the class
 if __name__ == "__main__":
-    target_url = "https://brainrot.fandom.com/wiki/Special:AllPages"
+    target_url = "https://brainrot.fandom.com/wiki/Category:AI_Brainrot"
 
     try:
         crawler = FandomCrawler() # Initialize the crawler
         newly_scraped_data = crawler.crawl_all_pages(target_url) # Run the crawl
         print(newly_scraped_data)
-        if newly_scraped_data:
-            print("\n--- Successfully Scraped Pages ---")
-            # If you were processing multiple pages, you would loop here
-            for page in newly_scraped_data:
-                 print(f"Title: {page['title']}")
-                 print(f"URL: {page['url']}")
-                 print(f"Image Link: {page.get('image_link', 'N/A')}") # Use .get for safety
-                 print(f"Crawled At: {page['crawled_at']}")
-                 print(f"Content Preview (first 100 chars): {page['content'][:100]}...")
-                 print("---")
+        # if newly_scraped_data:
+        #     print("\n--- Successfully Scraped Pages ---")
+        #     # If you were processing multiple pages, you would loop here
+        #     for page in newly_scraped_data:
+        #          print(f"Title: {page['title']}")
+        #          print(f"URL: {page['url']}")
+        #          print(f"Image Link: {page.get('image_link', 'N/A')}") # Use .get for safety
+        #          print(f"Crawled At: {page['crawled_at']}")
+        #          print(f"Content Preview (first 100 chars): {page['content'][:100]}...")
+        #          print("---")
             # Save the scraped data to Supabase
-            crawler.save_to_supabase(newly_scraped_data)
+            # crawler.save_to_supabase(newly_scraped_data)
             # Here you would typically insert the data into Supabase
             # Example (uncomment and adapt if needed):
             # try:
@@ -236,8 +299,8 @@ if __name__ == "__main__":
             # except Exception as db_error:
             #     logging.error(f"Error inserting data into Supabase: {db_error}")
 
-        else:
-            print("No new page titles were scraped in this run. Check logs for details.")
+        # else:
+        #     print("No new page titles were scraped in this run. Check logs for details.")
 
     except ValueError as ve:
         # Handles missing environment variables during initialization

@@ -25,7 +25,7 @@ def crawl_fandom_pages(context: OpExecutionContext) -> list[dict]:
     """
     logger = get_dagster_logger()
     logger.info("Starting Fandom crawl...")
-    target_url = "https://brainrot.fandom.com/wiki/Special:AllPages" # Or get from config
+    target_url = "https://brainrot.fandom.com/wiki/Category:AI_Brainrot" # Or get from config
 
     try:
         crawler = FandomCrawler()
