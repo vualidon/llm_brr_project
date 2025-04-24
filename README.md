@@ -158,6 +158,8 @@ Check out the demo video of the project in action:
 
 **You can check out the dataset**: [here](https://huggingface.co/datasets/thangvip/brr_training_dataset)
 
+**Access the demo** [here](https://huggingface.co/spaces/thangvip/Qwen2.5-VL-3B-Brainrot-LoRA)
+
 ## 📝 License
 
 [Your License Here]
