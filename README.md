@@ -145,6 +145,16 @@ llm_brr_project/
 3. **Push to Hugging Face**: Store the processed data in a Hugging Face dataset
 4. **Train Vision Model**: Fine-tune a vision-language model on the data
 
+## 🎬 Demo
+
+Check out the demo video of the project in action:
+
+[Demo Video](./demo_video.mp4)
+
+## Huggingface link
+
+**You can check out the dataset**: [here](https://huggingface.co/datasets/thangvip/brr_training_dataset)
+
 ## 📝 License
 
 [Your License Here]
