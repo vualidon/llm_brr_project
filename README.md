@@ -149,7 +149,10 @@ llm_brr_project/
 
 Check out the demo video of the project in action:
 
-![Demo Video](./demo_video.mp4)
+
+### GitHub Assets Demo
+
+![Demo Video](https://github.com/user-attachments/assets/cc8421ac-3731-4691-93f8-abd49df0712e)
 
 ## Huggingface link
 
