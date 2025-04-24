@@ -149,7 +149,7 @@ llm_brr_project/
 
 Check out the demo video of the project in action:
 
-[Demo Video](./demo_video.mp4)
+![Demo Video](./demo_video.mp4)
 
 ## Huggingface link
 
